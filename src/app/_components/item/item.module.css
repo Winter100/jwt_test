@@ -1,0 +1,23 @@
+.container {
+  border: 1px solid black;
+  width: 100%;
+  height: 20rem;
+}
+
+.container:hover {
+  cursor: pointer;
+}
+
+.image {
+  height: 85%;
+  width: 100%;
+  position: relative;
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  height: 15%;
+}
