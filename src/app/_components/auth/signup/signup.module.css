@@ -1,6 +1,15 @@
 .container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 500px;
+  gap: 2rem;
+}
+
+.container > div {
+  height: 2rem;
+}
+.container > div > input {
+  height: inherit;
 }

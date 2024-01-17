@@ -1,5 +1,5 @@
-import DetailItem from "@/app/_components/detail/detail";
 import React from "react";
+import DetailItem from "@/app/_components/detail/detail";
 
 export default async function DetailPage() {
   return (
@@ -7,10 +7,4 @@ export default async function DetailPage() {
       <DetailItem />
     </div>
   );
-}
-
-async function getDetailData(id: string) {
-  const response = await fetch("api");
-  const data = await response.json();
-  return data;
 }

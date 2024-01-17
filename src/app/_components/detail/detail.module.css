@@ -1,4 +1,39 @@
 .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 800px;
+  gap: 1rem;
+}
+
+.title {
+  height: 2rem;
+  width: 30rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
   border: 1px solid black;
-  height: 500px;
+  border-radius: 2rem;
+  height: 60%;
+  width: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn > button {
+  width: 3rem;
+  height: 1.5rem;
+  border-radius: 1rem;
+  background-color: antiquewhite;
+  border: none;
+}
+
+.btn > button:hover {
+  cursor: pointer;
+  background-color: rgb(255, 221, 175);
 }
