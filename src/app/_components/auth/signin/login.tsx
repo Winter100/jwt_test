@@ -5,6 +5,7 @@ import styles from "./login.module.css";
 export default function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const idChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setId(e.target.value);
@@ -15,22 +16,30 @@ export default function Login() {
 
   const onsubmitHandler = async (e: FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    try {
+      const value = {
+        id,
+        password,
+      };
 
-    const value = {
-      id,
-      password,
-    };
+      // const response = await fetch("api", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(value),
+      // });
 
-    const response = await fetch("api", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(value),
-    });
-
-    const data = await response.json();
-    //로컬스토리지에 jwt 저장하기
+      // const data = await response.json();
+      localStorage.setItem("Access-token", "액세스토큰");
+      localStorage.setItem("Refresh-token", "리프레쉬토큰");
+      //로컬스토리지에 jwt 저장하기
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <form className={styles.container} onSubmit={onsubmitHandler}>
@@ -47,7 +56,7 @@ export default function Login() {
           value={password}
         />
       </div>
-      <button>로그인</button>
+      <button disabled={isLoading}>로그인</button>
     </form>
   );
 }
