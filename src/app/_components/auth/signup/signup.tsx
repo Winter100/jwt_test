@@ -40,9 +40,9 @@ export default function Signup() {
 
     try {
       const response = await fetch(`${requestAddress}/signup`, option);
-      const data = await response.json();
+      // const data = await response.json();
 
-      console.log(data);
+      // console.log(data);
 
       // if (data) {
       //   router.push("/");

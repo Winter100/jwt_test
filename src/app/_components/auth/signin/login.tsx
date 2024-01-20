@@ -2,11 +2,13 @@
 import React, { FormEvent, useState } from "react";
 import styles from "./login.module.css";
 import { requestAddress } from "@/app/_utill/httpAddress";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const idChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setId(e.target.value);
@@ -20,6 +22,9 @@ export default function Login() {
     setIsLoading(true);
     try {
       console.log(requestAddress);
+
+      console.log(id);
+      console.log(password);
 
       const value = {
         userId: id,
@@ -35,11 +40,12 @@ export default function Login() {
       });
 
       const data = await response.json();
-      console.log("t", data);
+      console.log(data);
 
-      // localStorage.setItem("Access-token", "액세스토큰");
-      // localStorage.setItem("Refresh-token", "리프레쉬토큰");
-      //로컬스토리지에 jwt 저장하기
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+
+      location.href = "/";
     } catch (e) {
       console.log(e);
     } finally {
