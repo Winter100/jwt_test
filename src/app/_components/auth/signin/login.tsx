@@ -1,6 +1,7 @@
 "use client";
 import React, { FormEvent, useState } from "react";
 import styles from "./login.module.css";
+import { requestAddress } from "@/app/_utill/httpAddress";
 
 export default function Login() {
   const [id, setId] = useState("");
@@ -18,22 +19,26 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
+      console.log(requestAddress);
+
       const value = {
-        id,
+        userId: id,
         password,
       };
 
-      // const response = await fetch("api", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(value),
-      // });
+      const response = await fetch(`${requestAddress}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(value),
+      });
 
-      // const data = await response.json();
-      localStorage.setItem("Access-token", "액세스토큰");
-      localStorage.setItem("Refresh-token", "리프레쉬토큰");
+      const data = await response.json();
+      console.log("t", data);
+
+      // localStorage.setItem("Access-token", "액세스토큰");
+      // localStorage.setItem("Refresh-token", "리프레쉬토큰");
       //로컬스토리지에 jwt 저장하기
     } catch (e) {
       console.log(e);

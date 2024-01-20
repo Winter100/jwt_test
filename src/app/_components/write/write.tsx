@@ -1,5 +1,5 @@
 "use client";
-import React, { ChangeEvent, useState } from "react";
+import React, { useState } from "react";
 import styles from "./write.module.css";
 
 interface WriteType {

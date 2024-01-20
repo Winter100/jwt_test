@@ -2,11 +2,12 @@
 import React, { useState } from "react";
 import styles from "./signup.module.css";
 import { useRouter } from "next/navigation";
+import { requestAddress } from "@/app/_utill/httpAddress";
 
 export default function Signup() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   const router = useRouter();
 
@@ -17,16 +18,16 @@ export default function Signup() {
     setPassword(e.target.value);
   };
   const nameChageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
+    setEmail(e.target.value);
   };
 
   const onSubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const value = {
-      id,
+      userId: id,
       password,
-      name,
+      email,
     };
 
     const option = {
@@ -37,28 +38,44 @@ export default function Signup() {
       body: JSON.stringify(value),
     };
 
-    const response = await fetch("api", option);
-    const data = await response.json();
+    try {
+      const response = await fetch(`${requestAddress}/signup`, option);
+      const data = await response.json();
 
-    if (data) {
-      router.push("/");
-    } else {
-      return;
+      console.log(data);
+
+      // if (data) {
+      //   router.push("/");
+      // } else {
+      //   return;
+      // }
+    } catch (e) {
+      console.log(e);
     }
   };
   return (
     <form className={styles.container} onSubmit={onSubmitHandler}>
       <div>
         <label htmlFor="id">아이디</label>
-        <input id="id" type="text " onChange={idChageHandler} />
+        <input id="id" type="text " onChange={idChageHandler} value={id} />
       </div>
       <div>
         <label htmlFor="password">비밀번호</label>
-        <input id="password" type="password" onChange={passWordChageHandler} />
+        <input
+          id="password"
+          type="password"
+          onChange={passWordChageHandler}
+          value={password}
+        />
       </div>
       <div>
-        <label htmlFor="name">이름</label>
-        <input id="name" type="text " onChange={nameChageHandler} />
+        <label htmlFor="name">이메일</label>
+        <input
+          id="name"
+          type="email"
+          onChange={nameChageHandler}
+          value={email}
+        />
       </div>
       <button>가입</button>
     </form>
