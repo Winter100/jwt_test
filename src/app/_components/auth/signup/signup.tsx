@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import styles from "./signup.module.css";
 import { useRouter } from "next/navigation";
 import { requestAddress } from "@/app/_utill/httpAddress";
+import { requestApi } from "@/app/_utill/requestApi";
 
 export default function Signup() {
   const [id, setId] = useState("");
@@ -24,31 +25,26 @@ export default function Signup() {
   const onSubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const value = {
-      userId: id,
-      password,
-      email,
-    };
-
-    const option = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(value),
-    };
-
     try {
-      const response = await fetch(`${requestAddress}/signup`, option);
-      // const data = await response.json();
+      const value = {
+        userId: id,
+        password,
+        email,
+      };
 
-      // console.log(data);
+      const option = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(value),
+      };
 
-      // if (data) {
-      //   router.push("/");
-      // } else {
-      //   return;
-      // }
+      const data = await requestApi("signup", option);
+
+      if (data) {
+        location.href = "/";
+      }
     } catch (e) {
       console.log(e);
     }

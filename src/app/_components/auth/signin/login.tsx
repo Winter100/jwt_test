@@ -2,13 +2,12 @@
 import React, { FormEvent, useState } from "react";
 import styles from "./login.module.css";
 import { requestAddress } from "@/app/_utill/httpAddress";
-import { useRouter } from "next/navigation";
+import { requestApi } from "@/app/_utill/requestApi";
 
 export default function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const idChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setId(e.target.value);
@@ -21,33 +20,28 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      console.log(requestAddress);
-
-      console.log(id);
-      console.log(password);
-
       const value = {
         userId: id,
         password,
       };
 
-      const response = await fetch(`${requestAddress}/login`, {
+      const option = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(value),
-      });
+      };
 
-      const data = await response.json();
-      console.log(data);
+      const data = await requestApi("login", option);
 
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-
-      location.href = "/";
+      if (data) {
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+        location.href = "/";
+      }
     } catch (e) {
-      console.log(e);
+      console.log("로그인의 에러", e);
     } finally {
       setIsLoading(false);
     }
