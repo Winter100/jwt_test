@@ -1,13 +1,26 @@
 "use client";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import styles from "./login.module.css";
-import { requestAddress } from "@/app/_utill/httpAddress";
 import { requestApi } from "@/app/_utill/requestApi";
+import {
+  setAccessTokenFromLocalStorage,
+  setReFreshTokenFromLocalStorage,
+} from "@/app/_utill/helper";
 
 export default function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
+  }, [timerId]);
 
   const idChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setId(e.target.value);
@@ -25,20 +38,30 @@ export default function Login() {
         password,
       };
 
-      const option = {
+      const options = {
+        url: "login",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(value),
+        data: value,
       };
 
-      const data = await requestApi("login", option);
+      const response = await requestApi(options);
 
-      if (data) {
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
-        location.href = "/";
+      if (response.message) {
+        setMessage(response.message);
+        return;
+      }
+
+      if (response.accessToken) {
+        setAccessTokenFromLocalStorage(response.accessToken);
+        setReFreshTokenFromLocalStorage(response.refreshToken);
+        setMessage("로그인 성공! 잠시후 이동합니다.");
+        const timer = setTimeout(() => {
+          location.href = "/";
+        }, 2000);
+        setTimerId(timer);
       }
     } catch (e) {
       console.log("로그인의 에러", e);
@@ -47,21 +70,24 @@ export default function Login() {
     }
   };
   return (
-    <form className={styles.container} onSubmit={onsubmitHandler}>
-      <div>
-        <label htmlFor="id">아이디</label>
-        <input id="id" type="text" onChange={idChangeHandler} value={id} />
-      </div>
-      <div>
-        <label htmlFor="password">비밀번호</label>
-        <input
-          id="password"
-          type="password"
-          onChange={passwordChangeHandler}
-          value={password}
-        />
-      </div>
-      <button disabled={isLoading}>로그인</button>
-    </form>
+    <>
+      <form className={styles.container} onSubmit={onsubmitHandler}>
+        <div>
+          <label htmlFor="id">아이디</label>
+          <input id="id" type="text" onChange={idChangeHandler} value={id} />
+        </div>
+        <div>
+          <label htmlFor="password">비밀번호</label>
+          <input
+            id="password"
+            type="password"
+            onChange={passwordChangeHandler}
+            value={password}
+          />
+        </div>
+        <button disabled={isLoading}>로그인</button>
+      </form>
+      <p>{message}</p>
+    </>
   );
 }

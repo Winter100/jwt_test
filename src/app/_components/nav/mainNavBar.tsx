@@ -2,12 +2,9 @@
 import React, { useEffect, useState } from "react";
 import styles from "./mainNavBar.module.css";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function MainNavBar() {
   const [accessToken, setAccessToken] = useState("");
-
-  const router = useRouter();
 
   const logoutHandler = () => {
     localStorage.removeItem("accessToken");
@@ -21,6 +18,7 @@ export default function MainNavBar() {
       setAccessToken(storedAccessToken);
     }
   }, []);
+
   return (
     <ul className={styles.container}>
       <li>
