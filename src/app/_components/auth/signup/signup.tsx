@@ -35,7 +35,7 @@ export default function Signup() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: value,
+        data: value,
       };
 
       const data = await requestApi(options);
@@ -46,6 +46,7 @@ export default function Signup() {
       }
       alert("가입이 완료되었습니다.");
       location.href = "/";
+      return;
     } catch (e) {
       console.log(e);
     }

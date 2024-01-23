@@ -30,13 +30,9 @@ export async function requestApi(options: optionType) {
       data: options.data,
     });
 
-    console.log("responseAPI: ", response);
-
     return response;
   } catch (e) {
     if (axios.isAxiosError(e)) {
-      console.log("에러핸들링 테스트: ", e.response);
-      console.log("에러핸들링 테스트: ", e.response?.data);
       return e.response?.data;
     }
     // const error = e as AxiosError;
@@ -55,7 +51,9 @@ instance.interceptors.response.use(
     try {
       console.log("인터셉터 err", err);
       if (err.response.status === 401) {
-        const reFreshToken = getReFreshTokenFromLocalStorage();
+        const reFreshToken = getReFreshTokenFromLocalStorage() || "테스트";
+        // const reFreshToken = "임시";
+        console.log("asdfawefefw");
 
         if (reFreshToken) {
           const reFreshTokenParams = new URLSearchParams();
@@ -81,16 +79,18 @@ instance.interceptors.response.use(
             setAccessTokenFromLocalStorage(accessToken);
             setReFreshTokenFromLocalStorage(refreshToken);
           }
+          const config = err.config;
+          config.headers.Authorization = accessToken;
 
-          err.config.headers.Authorization = accessToken;
-
-          return instance(err.cofing);
+          return instance(config);
         }
-      } else {
-        return err.response.data;
       }
     } catch (e) {
-      console.log(e);
+      console.log("인터셉터의 에러", e);
+      localStorage.clear();
+      // alert("리프레시 만료, 로그아웃 됩니다.");
+      // location.href = "/";
+      return Promise.reject(e);
     }
 
     return Promise.reject(err);

@@ -49,7 +49,7 @@ export default function Login() {
 
       const response = await requestApi(options);
 
-      if (response.message) {
+      if (response.code.includes("A00")) {
         setMessage(response.message);
         return;
       }

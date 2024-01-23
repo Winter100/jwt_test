@@ -39,7 +39,7 @@ export default function Hello() {
     try {
       const accessToken = getAccessTokenFromLocalStorage();
 
-      if (!accessToken) return;
+      // if (!accessToken) return;
 
       const options = {
         url: "hello",
@@ -51,7 +51,7 @@ export default function Hello() {
       };
       const response = await requestApi(options);
 
-      if (response.code === "T001") {
+      if (response.code.includes("T00")) {
         console.log("?");
         setMessage(`Code: ${response.code}, Message: ${response.message}`);
       } else {
@@ -67,7 +67,7 @@ export default function Hello() {
     const refreshToken = getReFreshTokenFromLocalStorage() as string;
 
     try {
-      if (refreshToken === "undefined") return;
+      // if (!refreshToken) return;
 
       console.log(refreshToken);
 
