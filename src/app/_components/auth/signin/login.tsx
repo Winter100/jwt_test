@@ -52,6 +52,9 @@ export default function Login() {
       if (response.code.includes("A00")) {
         setMessage(response.message);
         return;
+      } else if (response.code.includes("G00")) {
+        setMessage(response.message);
+        return;
       }
 
       if (response.accessToken) {
