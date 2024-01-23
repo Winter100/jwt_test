@@ -12,3 +12,6 @@ export function setAccessTokenFromLocalStorage(accessToken: string) {
 export function setReFreshTokenFromLocalStorage(refreshToken: string) {
   localStorage.setItem("refreshToken", refreshToken);
 }
+
+export const usesToken = "usesToken";
+export const doesNotUseToken = "doesNotUseToken";

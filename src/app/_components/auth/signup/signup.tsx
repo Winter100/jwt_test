@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import styles from "./signup.module.css";
 import { requestApi } from "@/app/_utill/requestApi";
+import { doesNotUseToken } from "@/app/_utill/helper";
 
 export default function Signup() {
   const [id, setId] = useState("");
@@ -21,6 +22,7 @@ export default function Signup() {
 
   const onSubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage("");
 
     try {
       const value = {
@@ -38,14 +40,14 @@ export default function Signup() {
         data: value,
       };
 
-      const data = await requestApi(options);
+      const data = await requestApi(options, doesNotUseToken);
 
-      if (data.code === "G001") {
-        setMessage(data.message);
-        return;
+      if (data?.status === 204) {
+        alert("가입이 완료되었습니다.");
+        location.href = "/";
+      } else {
+        setMessage(`Code: ${data?.code}, Message: ${data?.message}`);
       }
-      alert("가입이 완료되었습니다.");
-      location.href = "/";
       return;
     } catch (e) {
       console.log(e);

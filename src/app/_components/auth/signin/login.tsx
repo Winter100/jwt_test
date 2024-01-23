@@ -5,6 +5,7 @@ import { requestApi } from "@/app/_utill/requestApi";
 import {
   setAccessTokenFromLocalStorage,
   setReFreshTokenFromLocalStorage,
+  usesToken,
 } from "@/app/_utill/helper";
 
 export default function Login() {
@@ -32,6 +33,7 @@ export default function Login() {
   const onsubmitHandler = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setMessage("");
     try {
       const value = {
         userId: id,
@@ -47,13 +49,13 @@ export default function Login() {
         data: value,
       };
 
-      const response = await requestApi(options);
+      const response = await requestApi(options, usesToken);
 
-      if (response.code.includes("A00")) {
-        setMessage(response.message);
+      if (response.code.includes("A0")) {
+        setMessage(`Code: ${response.code} Message: ${response.message}`);
         return;
-      } else if (response.code.includes("G00")) {
-        setMessage(response.message);
+      } else if (response.code.includes("G0")) {
+        setMessage(`Code: ${response.code} Message: ${response.message}`);
         return;
       }
 

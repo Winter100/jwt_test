@@ -4,6 +4,7 @@ import {
   getReFreshTokenFromLocalStorage,
   setAccessTokenFromLocalStorage,
   setReFreshTokenFromLocalStorage,
+  usesToken,
 } from "@/app/_utill/helper";
 import { requestAddress } from "@/app/_utill/httpAddress";
 import { requestApi } from "@/app/_utill/requestApi";
@@ -49,10 +50,9 @@ export default function Hello() {
           "Authorization": `${accessToken}`,
         },
       };
-      const response = await requestApi(options);
+      const response = await requestApi(options, usesToken);
 
-      if (response.code.includes("T00")) {
-        console.log("?");
+      if (response?.code.includes("T0")) {
         setMessage(`Code: ${response.code}, Message: ${response.message}`);
       } else {
         setMessage(response.data);

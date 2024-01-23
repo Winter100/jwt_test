@@ -1,9 +1,11 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { requestAddress } from "./httpAddress";
 import {
+  doesNotUseToken,
   getReFreshTokenFromLocalStorage,
   setAccessTokenFromLocalStorage,
   setReFreshTokenFromLocalStorage,
+  usesToken,
 } from "./helper";
 
 interface optionType {
@@ -15,45 +17,83 @@ interface optionType {
   data?: any;
 }
 
-const instance = axios.create({
+const unauthenticatedAxiosInstance = axios.create({
+  baseURL: requestAddress,
+  timeout: 2000,
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+const authenticatedAxiosInstance = axios.create({
   baseURL: requestAddress,
   timeout: 2000,
 });
 
-export async function requestApi(options: optionType) {
+export async function requestApi(
+  options: optionType,
+  selectedAxiosInstance: typeof usesToken | typeof doesNotUseToken
+) {
   console.log("options", options);
   try {
-    const response = await instance({
-      url: options.url,
-      method: options.method,
-      headers: options.headers,
-      data: options.data,
-    });
+    let response;
+
+    if (selectedAxiosInstance === usesToken) {
+      response = await authenticatedAxiosInstance({
+        url: options.url,
+        method: options.method,
+        headers: options.headers,
+        data: options.data,
+      });
+    } else if (selectedAxiosInstance === doesNotUseToken) {
+      response = await unauthenticatedAxiosInstance({
+        url: options.url,
+        data: options.data,
+      });
+    }
 
     return response;
   } catch (e) {
     if (axios.isAxiosError(e)) {
       return e.response?.data;
+    } else {
+      // 위와 같이 작동함
+      const error = e as AxiosError;
+      return error.response?.data;
     }
-    // const error = e as AxiosError;
-    // if (error.response) {
-    //   console.log("테스트", error.response.data);
-    // }
   }
 }
 
-instance.interceptors.response.use(
+unauthenticatedAxiosInstance.interceptors.response.use(
+  (res) => {
+    console.log("unAuth", res);
+    return res;
+  },
+  async (err) => {
+    try {
+      console.log("로그인 또는 회원가입시 response 인터셉터 에러");
+      console.log(err);
+      return Promise.reject(err);
+    } catch (e) {
+      console.log(e);
+      return Promise.reject(err);
+    }
+  }
+);
+
+authenticatedAxiosInstance.interceptors.response.use(
   (res) => {
     console.log("성공! 인터셉터");
     return res;
   },
   async (err) => {
+    console.log("토큰이 필요한 요청시 response 인터셉터 에러");
     try {
       console.log("인터셉터 err", err);
       if (err.response.status === 401) {
         const reFreshToken = getReFreshTokenFromLocalStorage() || "테스트";
         // const reFreshToken = "임시";
-        console.log("asdfawefefw");
 
         if (reFreshToken) {
           const reFreshTokenParams = new URLSearchParams();
@@ -82,17 +122,16 @@ instance.interceptors.response.use(
           const config = err.config;
           config.headers.Authorization = accessToken;
 
-          return instance(config);
+          return authenticatedAxiosInstance(config);
         }
       }
     } catch (e) {
       console.log("인터셉터의 에러", e);
       localStorage.clear();
-      // alert("리프레시 만료, 로그아웃 됩니다.");
-      // location.href = "/";
+      alert("리프레시 만료, 로그아웃 됩니다.");
+      location.href = "/";
       return Promise.reject(e);
     }
-
     return Promise.reject(err);
   }
 );
