@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import styles from "./signup.module.css";
 import { requestApi } from "@/app/_utill/requestApi";
-import { doesNotUseToken } from "@/app/_utill/helper";
+import { DOES_NOT_USE_TOKEN } from "@/app/_utill/helper";
 
 export default function Signup() {
   const [id, setId] = useState("");
@@ -40,7 +40,7 @@ export default function Signup() {
         data: value,
       };
 
-      const data = await requestApi(options, doesNotUseToken);
+      const data = await requestApi(options, DOES_NOT_USE_TOKEN);
 
       if (data?.status === 204) {
         alert("가입이 완료되었습니다.");

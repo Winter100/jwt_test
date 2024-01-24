@@ -1,11 +1,12 @@
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import axios, { AxiosError } from "axios";
 import { requestAddress } from "./httpAddress";
 import {
-  doesNotUseToken,
+  clearAllTokensFromLocalStorage,
+  DOES_NOT_USE_TOKEN,
   getReFreshTokenFromLocalStorage,
   setAccessTokenFromLocalStorage,
   setReFreshTokenFromLocalStorage,
-  usesToken,
+  USES_TOKEN,
 } from "./helper";
 
 interface optionType {
@@ -33,24 +34,27 @@ const authenticatedAxiosInstance = axios.create({
 
 export async function requestApi(
   options: optionType,
-  selectedAxiosInstance: typeof usesToken | typeof doesNotUseToken
+  selectedAxiosInstance: typeof USES_TOKEN | typeof DOES_NOT_USE_TOKEN
 ) {
   console.log("options", options);
   try {
     let response;
 
-    if (selectedAxiosInstance === usesToken) {
+    if (selectedAxiosInstance === USES_TOKEN) {
       response = await authenticatedAxiosInstance({
         url: options.url,
         method: options.method,
         headers: options.headers,
         data: options.data,
       });
-    } else if (selectedAxiosInstance === doesNotUseToken) {
+    } else if (selectedAxiosInstance === DOES_NOT_USE_TOKEN) {
       response = await unauthenticatedAxiosInstance({
         url: options.url,
         data: options.data,
       });
+    } else {
+      //그외의 접근들...
+      return (response = "");
     }
 
     return response;
@@ -64,6 +68,19 @@ export async function requestApi(
     }
   }
 }
+
+//request 인터셉터 테스트
+// unauthenticatedAxiosInstance.interceptors.request.use(
+//   (config) => {
+//     const con = {
+//       ...config,
+//       method: "POST",
+//     };
+
+//     return con;
+//   },
+//   (err) => {}
+// );
 
 unauthenticatedAxiosInstance.interceptors.response.use(
   (res) => {
@@ -93,7 +110,6 @@ authenticatedAxiosInstance.interceptors.response.use(
       console.log("인터셉터 err", err);
       if (err.response.status === 401) {
         const reFreshToken = getReFreshTokenFromLocalStorage() || "테스트";
-        // const reFreshToken = "임시";
 
         if (reFreshToken) {
           const reFreshTokenParams = new URLSearchParams();
@@ -124,10 +140,13 @@ authenticatedAxiosInstance.interceptors.response.use(
 
           return authenticatedAxiosInstance(config);
         }
+      } else {
+        //err.response 속성이 401이 아닐경우의 모든 에러 핸들링 코드...
+        return;
       }
     } catch (e) {
       console.log("인터셉터의 에러", e);
-      localStorage.clear();
+      clearAllTokensFromLocalStorage();
       alert("리프레시 만료, 로그아웃 됩니다.");
       location.href = "/";
       return Promise.reject(e);
@@ -135,65 +154,3 @@ authenticatedAxiosInstance.interceptors.response.use(
     return Promise.reject(err);
   }
 );
-
-// instance.interceptors.response.use(
-//   (response) => response,
-//   async (e) => {
-//     const error = e as AxiosError;
-//     console.log("errorerrorerror", error);
-//     if (error.response?.status === 403) {
-//       console.log("리프레시 만료돼서 끝");
-//     }
-//     if (error.response?.status === 401) {
-//       try {
-//         console.log("인터셉터 리스폰 - 액세스 토큰 만료");
-//         const reFreshToken = getReFreshTokenFromLocalStorage() as string;
-
-//         // if (reFreshToken) {
-//         const reFreshTokenParams = new URLSearchParams();
-//         reFreshTokenParams.append("refreshToken", reFreshToken);
-
-//         console.log("Asdf", reFreshToken);
-
-//         const response = await axios.post(
-//           `${requestAddress}`,
-//           reFreshTokenParams,
-//           {
-//             headers: {
-//               "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-//             },
-//           }
-//         );
-
-//         const { accessToken, refreshToken } = response.data;
-//         if (accessToken && refreshToken) {
-//           setAccessTokenFromLocalStorage(accessToken);
-//           setReFreshTokenFromLocalStorage(refreshToken);
-//         }
-//         console.log("zzz", response);
-
-//         const options = {
-//           url: "hello",
-//           method: "GET",
-//           headers: {
-//             "Content-Type": "application/json",
-//             "Authorization": `${accessToken}`,
-//           },
-//         };
-
-//         // const config = error.config as AxiosRequestConfig;
-//         return instance(options);
-//       } catch (e) {
-//         console.log("zxcv", e);
-//         const error = {
-//           response: {
-//             message: "리프레시 유효기간 만료",
-//             status: 403,
-//           },
-//         };
-//         return error;
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );

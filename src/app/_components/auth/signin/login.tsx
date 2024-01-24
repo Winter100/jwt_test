@@ -3,9 +3,9 @@ import React, { FormEvent, useEffect, useState } from "react";
 import styles from "./login.module.css";
 import { requestApi } from "@/app/_utill/requestApi";
 import {
+  DOES_NOT_USE_TOKEN,
   setAccessTokenFromLocalStorage,
   setReFreshTokenFromLocalStorage,
-  usesToken,
 } from "@/app/_utill/helper";
 
 export default function Login() {
@@ -49,7 +49,7 @@ export default function Login() {
         data: value,
       };
 
-      const response = await requestApi(options, usesToken);
+      const response = await requestApi(options, DOES_NOT_USE_TOKEN);
 
       if (response.code.includes("A0")) {
         setMessage(`Code: ${response.code} Message: ${response.message}`);

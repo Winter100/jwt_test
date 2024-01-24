@@ -1,10 +1,11 @@
 "use client";
 import {
+  clearAllTokensFromLocalStorage,
   getAccessTokenFromLocalStorage,
   getReFreshTokenFromLocalStorage,
   setAccessTokenFromLocalStorage,
   setReFreshTokenFromLocalStorage,
-  usesToken,
+  USES_TOKEN,
 } from "@/app/_utill/helper";
 import { requestAddress } from "@/app/_utill/httpAddress";
 import { requestApi } from "@/app/_utill/requestApi";
@@ -50,7 +51,7 @@ export default function Hello() {
           "Authorization": `${accessToken}`,
         },
       };
-      const response = await requestApi(options, usesToken);
+      const response = await requestApi(options, USES_TOKEN);
 
       if (response?.code.includes("T0")) {
         setMessage(`Code: ${response.code}, Message: ${response.message}`);
@@ -104,7 +105,7 @@ export default function Hello() {
       const data = axiosResponse.data;
       // const data = axiosResponse.data;
       if (data.accessToken) {
-        localStorage.clear();
+        clearAllTokensFromLocalStorage();
         setAccessTokenFromLocalStorage(data.accessToken);
         setReFreshTokenFromLocalStorage(data.refreshToken);
       }
