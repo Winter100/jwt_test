@@ -7,6 +7,7 @@ import {
   setAccessTokenFromLocalStorage,
   setReFreshTokenFromLocalStorage,
 } from "@/app/_utill/helper";
+import { AxiosResponse } from "axios";
 
 export default function Login() {
   const [id, setId] = useState("");
@@ -40,6 +41,12 @@ export default function Login() {
         password,
       };
 
+      if (value.userId.trim().length < 1 || value.password.trim().length < 1) {
+        setMessage("아이디, 비밀번호를 입력해주세요");
+        setIsLoading(false);
+        return;
+      }
+
       const options = {
         url: "login",
         method: "POST",
@@ -49,24 +56,27 @@ export default function Login() {
         data: value,
       };
 
-      const response = await requestApi(options, DOES_NOT_USE_TOKEN);
+      const response = (await requestApi(
+        options,
+        DOES_NOT_USE_TOKEN
+      )) as AxiosResponse<any, any>;
 
-      if (response.code.includes("A0")) {
-        setMessage(`Code: ${response.code} Message: ${response.message}`);
+      if (response.status === 200) {
+        if (response.data?.accessToken) {
+          setAccessTokenFromLocalStorage(response.data?.accessToken);
+          setReFreshTokenFromLocalStorage(response.data?.refreshToken);
+          setMessage("로그인 성공! 잠시후 이동합니다.");
+          const timer = setTimeout(() => {
+            location.href = "/";
+          }, 2000);
+          setTimerId(timer);
+        }
         return;
-      } else if (response.code.includes("G0")) {
-        setMessage(`Code: ${response.code} Message: ${response.message}`);
+      } else {
+        setMessage(
+          `Code: ${response.data?.code} Message: ${response.data?.message}`
+        );
         return;
-      }
-
-      if (response.accessToken) {
-        setAccessTokenFromLocalStorage(response.accessToken);
-        setReFreshTokenFromLocalStorage(response.refreshToken);
-        setMessage("로그인 성공! 잠시후 이동합니다.");
-        const timer = setTimeout(() => {
-          location.href = "/";
-        }, 2000);
-        setTimerId(timer);
       }
     } catch (e) {
       console.log("로그인의 에러", e);
@@ -91,8 +101,8 @@ export default function Login() {
           />
         </div>
         <button disabled={isLoading}>로그인</button>
+        <p>{message}</p>
       </form>
-      <p>{message}</p>
     </>
   );
 }

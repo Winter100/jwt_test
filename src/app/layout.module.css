@@ -1,7 +1,12 @@
 .container {
   margin: auto;
-  max-width: 60%;
-  border: 1px solid black;
-  height: 90dvh;
+  margin-top: 1rem;
+  max-width: 1024px;
+  height: 100dvh;
   padding: 1rem;
+
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px rgb(150, 150, 150);
+
+  background-color: rgba(214, 230, 240, 0.2);
 }

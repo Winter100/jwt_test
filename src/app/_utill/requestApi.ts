@@ -20,7 +20,6 @@ interface optionType {
 
 const unauthenticatedAxiosInstance = axios.create({
   baseURL: requestAddress,
-  timeout: 2000,
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -29,7 +28,6 @@ const unauthenticatedAxiosInstance = axios.create({
 
 const authenticatedAxiosInstance = axios.create({
   baseURL: requestAddress,
-  timeout: 2000,
 });
 
 export async function requestApi(
@@ -57,14 +55,16 @@ export async function requestApi(
       return (response = "");
     }
 
+    console.log("api의", response);
+
     return response;
   } catch (e) {
     if (axios.isAxiosError(e)) {
-      return e.response?.data;
+      return e.response;
     } else {
       // 위와 같이 작동함
       const error = e as AxiosError;
-      return error.response?.data;
+      return error.response;
     }
   }
 }
@@ -89,8 +89,7 @@ unauthenticatedAxiosInstance.interceptors.response.use(
   },
   async (err) => {
     try {
-      console.log("로그인 또는 회원가입시 response 인터셉터 에러");
-      console.log(err);
+      console.log("로그인 또는 회원가입시 response 인터셉터 에러", err);
       return Promise.reject(err);
     } catch (e) {
       console.log(e);
@@ -101,15 +100,13 @@ unauthenticatedAxiosInstance.interceptors.response.use(
 
 authenticatedAxiosInstance.interceptors.response.use(
   (res) => {
-    console.log("성공! 인터셉터");
     return res;
   },
   async (err) => {
-    console.log("토큰이 필요한 요청시 response 인터셉터 에러");
     try {
-      console.log("인터셉터 err", err);
       if (err.response.status === 401) {
-        const reFreshToken = getReFreshTokenFromLocalStorage() || "테스트";
+        console.log("토큰만료, 재발급 실행", err);
+        const reFreshToken = getReFreshTokenFromLocalStorage();
 
         if (reFreshToken) {
           const reFreshTokenParams = new URLSearchParams();

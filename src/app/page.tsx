@@ -1,13 +1,10 @@
 import ItemList from "./_components/item/itemList";
+import styles from "./page.module.css";
 
 export default async function Home() {
   return (
-    <div>
+    <div className={styles.container}>
       <ItemList />
     </div>
   );
-}
-
-async function getDetailData() {
-  const response = await fetch("http://43.201.188.14/orders");
 }

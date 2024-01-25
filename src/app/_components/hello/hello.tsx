@@ -1,125 +1,67 @@
 "use client";
 import {
-  clearAllTokensFromLocalStorage,
   getAccessTokenFromLocalStorage,
-  getReFreshTokenFromLocalStorage,
-  setAccessTokenFromLocalStorage,
-  setReFreshTokenFromLocalStorage,
   USES_TOKEN,
 } from "@/app/_utill/helper";
-import { requestAddress } from "@/app/_utill/httpAddress";
+
 import { requestApi } from "@/app/_utill/requestApi";
-import axios from "axios";
+import { AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
+import styles from "./hello.module.css";
+import Link from "next/link";
 
 export default function Hello() {
   const [message, setMessage] = useState("");
+  const [isLoginBtn, setIsLoginBtn] = useState(false);
 
-  // useEffect(() => {
-  //   const accessToken = localStorage.getItem("accessToken");
-  //   if (!accessToken) return setData("로그인이 필요한 작업입니다.");
+  useEffect(() => {
+    const accessToken = getAccessTokenFromLocalStorage();
 
-  //   async function getData() {
-  //     const options = {
-  //       url: "hello",
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Authorization": `${accessToken}`,
-  //       },
-  //     };
-
-  //     const data = await requestApi(options);
-
-  //     // setData(data.message);
-  //   }
-
-  //   getData();
-  // }, []);
-
-  const onSubmitHandler = async () => {
-    try {
-      const accessToken = getAccessTokenFromLocalStorage();
-
-      // if (!accessToken) return;
-
-      const options = {
-        url: "hello",
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `${accessToken}`,
-        },
-      };
-      const response = await requestApi(options, USES_TOKEN);
-
-      if (response?.code.includes("T0")) {
-        setMessage(`Code: ${response.code}, Message: ${response.message}`);
-      } else {
-        setMessage(response.data);
-      }
+    if (!accessToken) {
+      setMessage("로그인이 필요한 작업입니다.");
+      setIsLoginBtn(true);
       return;
-    } catch (e) {
-      console.log(e);
     }
-  };
 
-  const refresh = async () => {
-    const refreshToken = getReFreshTokenFromLocalStorage() as string;
-
-    try {
-      // if (!refreshToken) return;
-
-      console.log(refreshToken);
-
-      const params = new URLSearchParams();
-      params.append("refreshToken", refreshToken);
-
-      // const params = {
-      //   refreshToken: refreshToken,
-      // };
-      //1. const params = `refreshToken=${refreshToken}`;
-      //2. const params = "refreshToken=" + encodeURIComponent(refreshToken);
-      //3. URL에 /token?refreshToken=${refreshToken}
-
-      const options = {
-        url: "token",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-        },
-        data: params,
-      };
-
-      // const response = await requestApi(options);
-      const axiosResponse = await axios.post(
-        `${requestAddress}/token`,
-        params,
-        {
+    async function getData() {
+      try {
+        const options = {
+          url: "hello",
+          method: "GET",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            "Content-Type": "application/json",
+            "Authorization": `${accessToken}`,
           },
-        }
-      );
+        };
 
-      const data = axiosResponse.data;
-      // const data = axiosResponse.data;
-      if (data.accessToken) {
-        clearAllTokensFromLocalStorage();
-        setAccessTokenFromLocalStorage(data.accessToken);
-        setReFreshTokenFromLocalStorage(data.refreshToken);
+        const response = (await requestApi(
+          options,
+          USES_TOKEN
+        )) as AxiosResponse<any, any>;
+
+        if (response?.status === 200) {
+          setMessage(response?.data);
+        } else {
+          setMessage(response?.data);
+        }
+        return;
+      } catch (e) {
+        console.log(e);
+        return;
       }
-      console.log("성공");
-      return;
-    } catch (e) {
-      console.log("axios테스트 에러:", e);
     }
-  };
+
+    getData();
+  }, []);
+
   return (
-    <>
-      <button onClick={onSubmitHandler}>GET요청</button>;
-      <button onClick={refresh}>refresh</button>
-      {message}
-    </>
+    <div className={styles.container}>
+      <p>{message}</p>
+      {isLoginBtn && (
+        <p>
+          <Link href={"/signin"}>로그인</Link>
+        </p>
+      )}
+    </div>
   );
 }

@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import styles from "./signup.module.css";
 import { requestApi } from "@/app/_utill/requestApi";
 import { DOES_NOT_USE_TOKEN } from "@/app/_utill/helper";
+import { AxiosResponse } from "axios";
 
 export default function Signup() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const idChageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setId(e.target.value);
@@ -23,6 +25,7 @@ export default function Signup() {
   const onSubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
+    setIsLoading(true);
 
     try {
       const value = {
@@ -30,6 +33,16 @@ export default function Signup() {
         password,
         email,
       };
+
+      if (
+        value.userId.trim().length < 1 ||
+        value.password.trim().length < 1 ||
+        value.email.trim().length < 1
+      ) {
+        setMessage("아이디, 비밀번호, 이메일을 입력해주세요");
+        setIsLoading(false);
+        return;
+      }
 
       const options = {
         url: "signup",
@@ -40,13 +53,19 @@ export default function Signup() {
         data: value,
       };
 
-      const data = await requestApi(options, DOES_NOT_USE_TOKEN);
+      const response = (await requestApi(
+        options,
+        DOES_NOT_USE_TOKEN
+      )) as AxiosResponse<any, any>;
 
-      if (data?.status === 204) {
+      if (response?.status === 204) {
         alert("가입이 완료되었습니다.");
         location.href = "/";
       } else {
-        setMessage(`Code: ${data?.code}, Message: ${data?.message}`);
+        setMessage(
+          `Code: ${response.data?.code}, Message: ${response.data?.message}`
+        );
+        setIsLoading(false);
       }
       return;
     } catch (e) {
@@ -78,9 +97,9 @@ export default function Signup() {
             value={email}
           />
         </div>
-        <button>가입</button>
+        <button disabled={isLoading}>가입</button>
+        <p>{message}</p>
       </form>
-      <p>{message}</p>
     </>
   );
 }

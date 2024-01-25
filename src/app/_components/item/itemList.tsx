@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Item from "./item";
 import styles from "./itemList.module.css";
 import Link from "next/link";
@@ -11,25 +11,36 @@ interface ItemListType {
 }
 
 export default function ItemList() {
-  const DUMMY = [
-    { id: 1, title: "제목1", image: "이미지" },
-    { id: 2, title: "제목1", image: "이미지" },
-    { id: 3, title: "제목1", image: "이미지" },
-    { id: 4, title: "제목1", image: "이미지" },
-    { id: 5, title: "제목1", image: "이미지" },
-    { id: 6, title: "제목1", image: "이미지" },
-    { id: 7, title: "제목1", image: "이미지" },
-  ];
+  const DUMMY = { id: Math.random(), title: "제목1", image: "이미지" };
+  const [dummy, setDummy] = useState([DUMMY]);
+
+  const onClickHandler = () => {
+    const newItem = {
+      id: Math.random(),
+      title: "새로운 제목",
+      image: "새로운 이미지",
+    };
+    setDummy((pre) => [...pre, newItem]);
+  };
 
   function itemRender(itemList: ItemListType[]) {
-    return itemList.map((item) => (
-      <li key={item.id} className={styles.li}>
-        <Link href={`/detail/${item.id}`}>
-          <Item data={item} />
-        </Link>
-      </li>
-    ));
+    return (
+      <ul>
+        {itemList.map((item) => (
+          <li key={item.id} className={styles.li}>
+            <Link href={`/detail/${item.id}`}>
+              <Item data={item} />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    );
   }
 
-  return <div className={styles.container}>{itemRender(DUMMY)}</div>;
+  return (
+    <>
+      <div className={styles.container}>{itemRender(dummy)}</div>
+      <button onClick={onClickHandler}>추가</button>
+    </>
+  );
 }
