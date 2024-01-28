@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./item.module.css";
-import book from "../../../../public/dummy_book.jpg";
 import Image from "next/image";
+import book from "../../../../public/dummy_book.jpg";
 
 export default function Item({
   data,
