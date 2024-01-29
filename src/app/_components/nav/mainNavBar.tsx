@@ -1,26 +1,30 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styles from "./mainNavBar.module.css";
 import Link from "next/link";
 import {
   clearAllTokensFromLocalStorage,
   getAccessTokenFromLocalStorage,
 } from "@/app/_utill/helper";
+import { userTokenStore } from "@/app/_utill/store/userTokenStore";
 
 export default function MainNavBar() {
-  const [accessToken, setAccessToken] = useState("");
+  const userStoreToken = userTokenStore((state) => state.accessToken);
+  const userSetToken = userTokenStore((state) => state.setAccessToken);
+
+  const setUserStokreAccessToken = userTokenStore(
+    (state) => state.setAccessToken
+  );
 
   const logoutHandler = () => {
     clearAllTokensFromLocalStorage();
-    location.reload();
+    userSetToken("");
+    // location.href = "/";
   };
 
   useEffect(() => {
-    const storedAccessToken = getAccessTokenFromLocalStorage();
-    if (storedAccessToken) {
-      setAccessToken(storedAccessToken);
-    }
-  }, []);
+    setUserStokreAccessToken(getAccessTokenFromLocalStorage() as string);
+  }, [setUserStokreAccessToken]);
 
   return (
     <ul className={styles.container}>
@@ -28,7 +32,7 @@ export default function MainNavBar() {
         <Link href={"/"}>HOME</Link>
       </li>
 
-      {accessToken ? (
+      {userStoreToken ? (
         <>
           <li>
             <Link href={"/hello"}>Hello</Link>
@@ -43,7 +47,7 @@ export default function MainNavBar() {
         </li>
       )}
 
-      {!accessToken ? (
+      {!userStoreToken ? (
         <li>
           <Link href={"/signin"}>로그인</Link>
         </li>

@@ -1,5 +1,5 @@
 "use client";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import styles from "./login.module.css";
 import { requestApi } from "@/app/_utill/requestApi";
 import {
@@ -8,21 +8,18 @@ import {
   setReFreshTokenFromLocalStorage,
 } from "@/app/_utill/helper";
 import { AxiosResponse } from "axios";
+import { useRouter } from "next/navigation";
+import { userTokenStore } from "@/app/_utill/store/userTokenStore";
 
 export default function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
+  const router = useRouter();
 
-  useEffect(() => {
-    return () => {
-      if (timerId) {
-        clearTimeout(timerId);
-      }
-    };
-  }, [timerId]);
+  const setAccessToken = userTokenStore((state) => state.setAccessToken);
+  const setRefreshToken = userTokenStore((state) => state.setRefreshToken);
 
   const idChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setId(e.target.value);
@@ -63,14 +60,14 @@ export default function Login() {
 
       if (response.status === 200) {
         if (response.data?.accessToken) {
-          setAccessTokenFromLocalStorage(response.data?.accessToken);
-          setReFreshTokenFromLocalStorage(response.data?.refreshToken);
-          setMessage("로그인 성공! 잠시후 이동합니다.");
-          const timer = setTimeout(() => {
-            location.href = "/";
-          }, 2000);
-          setTimerId(timer);
+          const accessToken = response.data?.accessToken;
+          const refreshToken = response.data?.refreshToken;
+          setAccessTokenFromLocalStorage(accessToken);
+          setReFreshTokenFromLocalStorage(refreshToken);
+          setAccessToken(accessToken);
+          setRefreshToken(refreshToken);
         }
+        router.push("/");
         return;
       } else {
         setMessage(

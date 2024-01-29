@@ -9,17 +9,17 @@ import { AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import styles from "./hello.module.css";
 import Link from "next/link";
+import { userTokenStore } from "@/app/_utill/store/userTokenStore";
 
 export default function Hello() {
   const [message, setMessage] = useState("");
-  const [isLoginBtn, setIsLoginBtn] = useState(false);
+  const StoreAccessToken = userTokenStore((state) => state.accessToken);
 
   useEffect(() => {
     const accessToken = getAccessTokenFromLocalStorage();
 
     if (!accessToken) {
       setMessage("로그인이 필요한 작업입니다.");
-      setIsLoginBtn(true);
       return;
     }
 
@@ -52,12 +52,12 @@ export default function Hello() {
     }
 
     getData();
-  }, []);
+  }, [StoreAccessToken]);
 
   return (
     <div className={styles.container}>
       <p>{message}</p>
-      {isLoginBtn && (
+      {!StoreAccessToken && (
         <p>
           <Link href={"/signin"}>로그인</Link>
         </p>

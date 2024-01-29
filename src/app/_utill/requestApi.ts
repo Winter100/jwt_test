@@ -34,7 +34,6 @@ export async function requestApi(
   options: optionType,
   selectedAxiosInstance: typeof USES_TOKEN | typeof DOES_NOT_USE_TOKEN
 ) {
-  console.log("options", options);
   try {
     let response;
 
@@ -55,8 +54,6 @@ export async function requestApi(
       return (response = "");
     }
 
-    console.log("api의", response);
-
     return response;
   } catch (e) {
     if (axios.isAxiosError(e)) {
@@ -69,19 +66,6 @@ export async function requestApi(
   }
 }
 
-//request 인터셉터 테스트
-// unauthenticatedAxiosInstance.interceptors.request.use(
-//   (config) => {
-//     const con = {
-//       ...config,
-//       method: "POST",
-//     };
-
-//     return con;
-//   },
-//   (err) => {}
-// );
-
 unauthenticatedAxiosInstance.interceptors.response.use(
   (res) => {
     console.log("unAuth", res);
@@ -89,7 +73,6 @@ unauthenticatedAxiosInstance.interceptors.response.use(
   },
   async (err) => {
     try {
-      console.log("로그인 또는 회원가입시 response 인터셉터 에러", err);
       return Promise.reject(err);
     } catch (e) {
       console.log(e);
@@ -105,7 +88,6 @@ authenticatedAxiosInstance.interceptors.response.use(
   async (err) => {
     try {
       if (err.response.status === 401) {
-        console.log("토큰만료, 재발급 실행", err);
         const reFreshToken = getReFreshTokenFromLocalStorage();
 
         if (reFreshToken) {
@@ -122,8 +104,6 @@ authenticatedAxiosInstance.interceptors.response.use(
               },
             }
           );
-
-          console.log("axiosResponse", axiosResponse);
 
           const { accessToken, refreshToken } = axiosResponse.data;
 
@@ -142,11 +122,10 @@ authenticatedAxiosInstance.interceptors.response.use(
         return;
       }
     } catch (e) {
-      console.log("인터셉터의 에러", e);
       clearAllTokensFromLocalStorage();
       alert("리프레시 만료, 로그아웃 됩니다.");
       location.href = "/";
-      return Promise.reject(e);
+      return;
     }
     return Promise.reject(err);
   }
