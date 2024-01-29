@@ -4,6 +4,9 @@ import styles from "./signup.module.css";
 import { requestApi } from "@/app/_utill/requestApi";
 import { DOES_NOT_USE_TOKEN } from "@/app/_utill/helper";
 import { AxiosResponse } from "axios";
+import UnstyledInputIntroduction from "../../input/customInput";
+import { Backdrop, Button, CircularProgress } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function Signup() {
   const [id, setId] = useState("");
@@ -11,21 +14,14 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const idChageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setId(e.target.value);
-  };
-  const passWordChageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-  const nameChageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const onSubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     setIsLoading(true);
+    setOpen(true);
 
     try {
       const value = {
@@ -41,6 +37,7 @@ export default function Signup() {
       ) {
         setMessage("아이디, 비밀번호, 이메일을 입력해주세요");
         setIsLoading(false);
+        setOpen(false);
         return;
       }
 
@@ -60,7 +57,7 @@ export default function Signup() {
 
       if (response?.status === 204) {
         alert("가입이 완료되었습니다.");
-        location.href = "/";
+        router.push("/");
       } else {
         setMessage(
           `Code: ${response.data?.code}, Message: ${response.data?.message}`
@@ -70,36 +67,44 @@ export default function Signup() {
       return;
     } catch (e) {
       console.log(e);
+    } finally {
+      setOpen(false);
     }
   };
   return (
     <>
       <form className={styles.container} onSubmit={onSubmitHandler}>
-        <div>
-          <label htmlFor="id">아이디</label>
-          <input id="id" type="text " onChange={idChageHandler} value={id} />
-        </div>
-        <div>
-          <label htmlFor="password">비밀번호</label>
-          <input
-            id="password"
-            type="password"
-            onChange={passWordChageHandler}
-            value={password}
-          />
-        </div>
-        <div>
-          <label htmlFor="name">이메일</label>
-          <input
-            id="name"
-            type="email"
-            onChange={nameChageHandler}
-            value={email}
-          />
-        </div>
-        <button disabled={isLoading}>가입</button>
+        <h2>회원가입</h2>
+        <UnstyledInputIntroduction
+          type={"text"}
+          value={id}
+          change={setId}
+          text={"아이디"}
+        />
+        <UnstyledInputIntroduction
+          type={"password"}
+          value={password}
+          change={setPassword}
+          text={"비밀번호"}
+        />
+        <UnstyledInputIntroduction
+          type={"email"}
+          value={email}
+          change={setEmail}
+          text={"이메일"}
+        />
+        <Button type="submit" variant="contained" disabled={isLoading}>
+          회원가입
+        </Button>
         <p>{message}</p>
       </form>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={open}
+        onClick={() => setOpen(false)}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 }

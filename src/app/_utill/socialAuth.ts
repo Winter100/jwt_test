@@ -1,3 +1,4 @@
+"use client";
 // 카카오 로그인
 export function useAuthKakao() {
   const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env}&redirect_uri=${process.env}&response_type=code`;

@@ -56,7 +56,7 @@ export default function Hello() {
 
   return (
     <div className={styles.container}>
-      <p>{message}</p>
+      <p>{message ?? "테스트중..."}</p>
       {!StoreAccessToken && (
         <p>
           <Link href={"/signin"}>로그인</Link>

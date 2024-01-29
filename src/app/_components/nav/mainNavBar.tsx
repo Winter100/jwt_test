@@ -27,6 +27,9 @@ export default function MainNavBar() {
   }, [setUserStokreAccessToken]);
 
   return (
+    // <div className={styles.container}>
+    //   <TemporaryDrawer />
+    // </div>
     <ul className={styles.container}>
       <li>
         <Link href={"/"}>HOME</Link>

@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Signup from "../_components/auth/signup/signup";
 

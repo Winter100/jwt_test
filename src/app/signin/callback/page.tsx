@@ -1,29 +1,56 @@
 "use client";
 
-import { DOES_NOT_USE_TOKEN } from "@/app/_utill/helper";
-import { requestApi } from "@/app/_utill/requestApi";
+import {
+  setAccessTokenFromLocalStorage,
+  setReFreshTokenFromLocalStorage,
+} from "@/app/_utill/helper";
+import { userTokenStore } from "@/app/_utill/store/userTokenStore";
+import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
+import styles from "./page.module.css";
+import { requestAddress } from "@/app/_utill/httpAddress";
 
 export default function CallBackPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const setAccessToken = userTokenStore((state) => state.setAccessToken);
+  const setRefreshToken = userTokenStore((state) => state.setRefreshToken);
 
   useEffect(() => {
-    console.log(searchParams.get("code"));
     const code = searchParams.get("code");
+    const state = searchParams.get("state");
 
     if (!code || code.trim().length < 1) router.replace("/");
 
     const loginFetch = async () => {
-      const option = {
-        method: "POST",
-        url: "naver",
-      };
-      const response = await requestApi(option, DOES_NOT_USE_TOKEN);
+      try {
+        const response = await axios.get(
+          `${requestAddress}/login/oauth2/code/naver?code=${code}&state=${state}`
+        );
+
+        if (response?.status === 200) {
+          if (response.data?.accessToken) {
+            const accessToken = response.data?.accessToken;
+            const refreshToken = response.data?.refreshToken;
+            setAccessTokenFromLocalStorage(accessToken);
+            setReFreshTokenFromLocalStorage(refreshToken);
+            setAccessToken(accessToken);
+            setRefreshToken(refreshToken);
+          }
+          router.push("/");
+          return;
+        } else {
+          router.push("/");
+          return;
+        }
+      } catch (e) {
+        router.push("/");
+        return;
+      }
     };
 
-    // loginFetch()
-  }, [searchParams, router]);
-  return <div>로그인 중....</div>;
+    loginFetch();
+  }, [searchParams, router, setRefreshToken, setAccessToken]);
+  return <div className={styles.container}>로그인 중....</div>;
 }

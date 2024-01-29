@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import styles from "./write.module.css";
 
+import UnstyledTextareaIntroduction from "../input/textArea";
+import { Button } from "@mui/material";
+
 interface WriteType {
   method: string;
 }
@@ -27,14 +30,11 @@ export default function Write({ method }: WriteType) {
 
   return (
     <form className={styles.container} onSubmit={writeHanlder}>
-      <div className={styles.title_container}>
-        <label>제목</label>
-        <input type="text" onChange={titleChangeHandler} value={title} />
-      </div>
-      <div className={styles.textarea_container}>
-        <textarea onChange={contentChangeHandler} value={content} />
-      </div>
-      <button disabled={isLoading}>글쓰기</button>
+      <UnstyledTextareaIntroduction minRows={3} />
+      <UnstyledTextareaIntroduction minRows={35} />
+      <Button type="submit" variant="contained" disabled={isLoading}>
+        글쓰기
+      </Button>
     </form>
   );
 }

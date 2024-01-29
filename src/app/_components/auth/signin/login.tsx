@@ -1,6 +1,6 @@
 "use client";
 import React, { FormEvent, useState } from "react";
-import styles from "./login.module.css";
+
 import { requestApi } from "@/app/_utill/requestApi";
 import {
   DOES_NOT_USE_TOKEN,
@@ -10,28 +10,26 @@ import {
 import { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { userTokenStore } from "@/app/_utill/store/userTokenStore";
+import { Backdrop, Button, CircularProgress } from "@mui/material";
+import UnstyledInputIntroduction from "../../input/customInput";
+import styles from "./login.module.css";
 
 export default function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [open, setOpen] = useState(false);
   const router = useRouter();
 
   const setAccessToken = userTokenStore((state) => state.setAccessToken);
   const setRefreshToken = userTokenStore((state) => state.setRefreshToken);
 
-  const idChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setId(e.target.value);
-  };
-  const passwordChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
   const onsubmitHandler = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage("");
+    setOpen(true);
     try {
       const value = {
         userId: id,
@@ -41,6 +39,7 @@ export default function Login() {
       if (value.userId.trim().length < 1 || value.password.trim().length < 1) {
         setMessage("아이디, 비밀번호를 입력해주세요");
         setIsLoading(false);
+        setOpen(false);
         return;
       }
 
@@ -79,27 +78,38 @@ export default function Login() {
       console.log("로그인의 에러", e);
     } finally {
       setIsLoading(false);
+      setOpen(false);
     }
   };
+
   return (
     <>
       <form className={styles.container} onSubmit={onsubmitHandler}>
-        <div>
-          <label htmlFor="id">아이디</label>
-          <input id="id" type="text" onChange={idChangeHandler} value={id} />
-        </div>
-        <div>
-          <label htmlFor="password">비밀번호</label>
-          <input
-            id="password"
-            type="password"
-            onChange={passwordChangeHandler}
-            value={password}
-          />
-        </div>
-        <button disabled={isLoading}>로그인</button>
-        <p>{message}</p>
+        <h2>로그인</h2>
+        <UnstyledInputIntroduction
+          type={"text"}
+          value={id}
+          change={setId}
+          text={"아이디"}
+        />
+        <UnstyledInputIntroduction
+          type={"password"}
+          value={password}
+          change={setPassword}
+          text={"비밀번호"}
+        />
+        <Button type="submit" variant="contained" disabled={isLoading}>
+          로그인
+        </Button>
+        {message}
       </form>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={open}
+        onClick={() => setOpen(false)}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 }
