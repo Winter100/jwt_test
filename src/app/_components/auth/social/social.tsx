@@ -10,15 +10,17 @@ import { requestAddress } from "@/app/_utill/httpAddress";
 export default function SocialLogin() {
   const width = 150;
   const height = 40;
+  const router = useRouter();
 
   const naverHandler = async () => {
-    const response = await axios.get(
-      `${requestAddress}/oauth2/authorization/naver`
-    );
-    console.log("response", response);
+    router.push(`${requestAddress}/oauth2/authorization/naver`);
+    // const response = await axios.get(
+    //   `${requestAddress}/oauth2/authorization/naver`
+    // );
+    // console.log("response", response);
 
-    const data = response.data;
-    console.log("data", data);
+    // const data = response.data;
+    // console.log("data", data);
 
     return;
   };
