@@ -1,7 +1,7 @@
 "use client";
+import Login from "@/app/_components/auth/signin/login";
+import SocialLogin from "@/app/_components/auth/social/social";
 import React from "react";
-import Login from "../_components/auth/signin/login";
-import SocialLogin from "../_components/auth/social/social";
 
 export default function LoginPage() {
   return (
