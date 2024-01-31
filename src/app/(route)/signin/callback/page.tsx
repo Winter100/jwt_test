@@ -26,7 +26,8 @@ export default function CallBackPage() {
     const loginFetch = async () => {
       try {
         const response = await axios.get(
-          `${requestAddress}/login/oauth2/code/naver?code=${code}&state=${state}`
+          `${requestAddress}/login/oauth2/code/naver?code=${code}&state=${state}`,
+          { withCredentials: true }
         );
 
         if (response?.status === 200) {
