@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
 import styles from "./page.module.css";
 import { requestAddress } from "@/app/_utill/httpAddress";
+import { useSocialLoginName } from "@/app/_utill/store/socialNameStore";
 
 export default function CallBackPage() {
   const searchParams = useSearchParams();
@@ -20,13 +21,14 @@ export default function CallBackPage() {
   useEffect(() => {
     const code = searchParams.get("code");
     const state = searchParams.get("state");
+    const socialName = useSocialLoginName.getState().socialLoginName;
 
-    if (!code || code.trim().length < 1) router.replace("/");
+    if (!code || code.trim().length < 1 || !socialName) router.replace("/");
 
     const loginFetch = async () => {
       try {
         const response = await axios.get(
-          `${requestAddress}/login/oauth2/code/naver?code=${code}&state=${state}`,
+          `${requestAddress}/login/oauth2/code/${socialName}?code=${code}&state=${state}`,
           { withCredentials: true }
         );
 
