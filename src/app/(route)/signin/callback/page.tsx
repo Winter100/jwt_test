@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  clearSocialNameFromLocalStorage,
+  getSocialNameFromLocalStorage,
   setAccessTokenFromLocalStorage,
   setReFreshTokenFromLocalStorage,
 } from "@/app/_utill/helper";
@@ -21,7 +23,7 @@ export default function CallBackPage() {
   useEffect(() => {
     const code = searchParams.get("code");
     const state = searchParams.get("state");
-    const socialName = useSocialLoginName.getState().socialLoginName;
+    const socialName = getSocialNameFromLocalStorage();
 
     if (!code || code.trim().length < 1 || !socialName) router.replace("/");
 
@@ -50,6 +52,8 @@ export default function CallBackPage() {
       } catch (e) {
         router.push("/");
         return;
+      } finally {
+        clearSocialNameFromLocalStorage();
       }
     };
 

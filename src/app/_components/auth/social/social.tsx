@@ -4,17 +4,15 @@ import styles from "./social.module.css";
 
 import { useRouter } from "next/navigation";
 import { requestAddress } from "@/app/_utill/httpAddress";
-import { useSocialLoginName } from "@/app/_utill/store/socialNameStore";
+import { setSocialNameFromLocalStorage } from "@/app/_utill/helper";
 
 export default function SocialLogin() {
   const width = 150;
   const height = 40;
   const router = useRouter();
 
-  const setSocialName = useSocialLoginName((state) => state.setSocialLoginName);
-
   const socialLoginHandler = async (socialName: string) => {
-    setSocialName(socialName);
+    setSocialNameFromLocalStorage(socialName);
     router.push(`${requestAddress}/oauth2/authorization/${socialName}`);
     return;
   };
